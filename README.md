@@ -7,7 +7,8 @@ A professional healthcare website for physiotherapy, acupuncture, and acupressur
 ✅ **Professional UI/UX** - Modern, responsive design using Bootstrap 5  
 ✅ **Doctor Profile** - Display doctor information, qualifications, and work samples  
 ✅ **Services Management** - Manage physiotherapy, acupuncture, and acupressure services  
-✅ **Online Booking System** - Patients can book appointments with date/time selection  
+✅ **Online Booking System** - Patients can book appointments with date/time selection 
+✅ **Email Booking Notification** - Once Booking is completed user get confirmation mail
 ✅ **Contact System** - Contact form with admin messaging system  
 ✅ **Home Visit Services** - Support for home-based consultations  
 ✅ **Google Maps Integration** - Embedded location information  
