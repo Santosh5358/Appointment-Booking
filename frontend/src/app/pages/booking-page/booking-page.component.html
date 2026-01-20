@@ -1,0 +1,157 @@
+<div class="booking-page py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body p-5">
+            <h2 class="text-primary text-center mb-4">Book an Appointment</h2>
+
+            <!-- Alerts -->
+            <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+              {{ successMessage }}
+              <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+            </div>
+            <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show">
+              {{ errorMessage }}
+              <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+            </div>
+
+            <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()">
+
+              <!-- PATIENT DETAILS -->
+              <h5 class="mb-3 text-secondary">Patient Information</h5>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <input type="text" id="patientName" formControlName="patientName" 
+                         class="form-control form-control-lg" placeholder="Full Name *"
+                         [class.is-invalid]="submitted && f['patientName'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['patientName'].errors">
+                    <span *ngIf="f['patientName'].errors['required']">Name is required</span>
+                    <span *ngIf="f['patientName'].errors['minlength']">At least 3 characters</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <input type="email" id="patientEmail" formControlName="patientEmail" 
+                         class="form-control form-control-lg" placeholder="Email *"
+                         [class.is-invalid]="submitted && f['patientEmail'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['patientEmail'].errors">
+                    <span *ngIf="f['patientEmail'].errors['required']">Email is required</span>
+                    <span *ngIf="f['patientEmail'].errors['email']">Invalid email</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <input type="tel" id="patientPhone" formControlName="patientPhone" 
+                         class="form-control form-control-lg" placeholder="Phone *"
+                         [class.is-invalid]="submitted && f['patientPhone'].errors">
+                  <div class="invalid-feedback" *ngIf="submitted && f['patientPhone'].errors">
+                    <span *ngIf="f['patientPhone'].errors['required']">Phone is required</span>
+                    <span *ngIf="f['patientPhone'].errors['pattern']">Must be 10 digits</span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <textarea id="patientAddress" formControlName="patientAddress" rows="2" 
+                            class="form-control form-control-lg" placeholder="Address *"
+                            [class.is-invalid]="submitted && f['patientAddress'].errors"></textarea>
+                  <div class="invalid-feedback" *ngIf="submitted && f['patientAddress'].errors">
+                    <span *ngIf="f['patientAddress'].errors['required']">Address is required</span>
+                    <span *ngIf="f['patientAddress'].errors['minlength']">At least 5 characters</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SERVICE & DOCTOR -->
+              <h5 class="mb-3 text-secondary">Service & Doctor</h5>
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <select id="doctor" formControlName="doctor" class="form-select form-select-lg"
+                            [class.is-invalid]="submitted && f['doctor'].errors" (change)="onDoctorChange()">
+                        <option value="">Choose a Doctor...</option>
+                        <option *ngFor="let doctor of doctors" [value]="doctor._id" >
+                        {{ doctor.title }} {{ doctor.name }} - {{ doctor.specializations?.join(', ') || 'N/A' }}
+                        <span *ngIf="doctorServicesMap[doctor._id]?.length"> 
+                            (Services: {{ getDoctorServices(doctor._id) }})
+                        </span>
+                        </option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="submitted && f['doctor'].errors">
+                        Doctor is required
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                  <select id="service" formControlName="service" class="form-select form-select-lg"
+                          (change)="onServiceChange()" [class.is-invalid]="submitted && f['service'].errors">
+                    <option value="">Choose a service...</option>
+                    <option *ngFor="let service of servicesForSelectedDoctor" [value]="service._id">
+                      {{ service.name }} - ₹{{ service.price }}
+                    </option>
+                  </select>
+                  <!-- <div class="invalid-feedback" *ngIf="submitted && f['service'].errors">Service is required</div> -->
+                </div>
+              </div>
+
+              <!-- DATE & TIME -->
+              <h5 class="mb-3 text-secondary">Appointment Date & Time</h5>
+              <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                            <input type="date" id="appointmentDate" formControlName="appointmentDate" 
+                            class="form-control form-control-lg" [attr.min]="minDate"
+                            (change)="onDateChange()"
+                            [class.is-invalid]="submitted && f['appointmentDate'].errors">
+                    <div class="invalid-feedback" *ngIf="submitted && f['appointmentDate'].errors">Date is required</div>
+            </div>
+            </div>
+            <div class="mb-4">
+                 <div *ngIf="bookingForm.get('appointmentDate')?.value">
+                <div class="row g-2">
+                    <ng-container *ngFor="let slot of availableSlots; let i = index">
+                    <div class="col-3">
+                        <input type="radio" [id]="'slot-' + slot.time" [value]="slot.time"
+                            formControlName="appointmentTime" [disabled]="isSlotDisabled(slot)"
+                            class="time-slot-input">
+                        <label [for]="'slot-' + slot.time" class="time-slot-label"
+                            [class.booked]="slot.isBooked" [class.available]="!slot.isBooked">
+                        {{ slot.time }}
+                        <span class="slot-status" [class.available-status]="!slot.isBooked">
+                            {{ slot.isBooked ? 'Booked' : 'Available' }}
+                        </span>
+                        </label>
+                    </div>
+                    </ng-container>
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="submitted && f['appointmentTime'].errors">
+                    Time is required
+                </div>
+            </div>
+            </div>
+              <!-- NOTES -->
+              <div class="mb-4">
+                <textarea id="notes" formControlName="notes" rows="3" class="form-control form-control-lg"
+                          placeholder="Additional notes (optional)"></textarea>
+              </div>
+
+              <!-- SUBMIT -->
+              <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm" [disabled]="loading">
+                <span *ngIf="!loading">Book Appointment</span>
+                <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Processing...</span>
+              </button>
+
+            </form>
+
+            <!-- Info Box -->
+            <div class="alert alert-info mt-4 rounded-4">
+              <h6>Important Information</h6>
+              <ul class="mb-0 ps-3">
+                <li>Appointments depend on availability.</li>
+                <li>Confirmation will be sent to your contact info.</li>
+                <li>Provide accurate details to avoid delays.</li>
+                <li>For emergencies, please call the clinic directly.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

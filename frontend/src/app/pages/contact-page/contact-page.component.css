@@ -1,0 +1,53 @@
+.contact-page {
+  min-height: calc(100vh - 200px);
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 10px 15px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.contact-info .info-item h6 {
+  font-weight: 600;
+}
+
+.contact-info a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-info a:hover {
+  color: #0056b3;
+}
+
+.hours-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.hours-item:last-child {
+  border-bottom: none;
+}
+
+.fw-500 {
+  font-weight: 500;
+}

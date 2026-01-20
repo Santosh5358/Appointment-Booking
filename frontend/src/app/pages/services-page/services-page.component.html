@@ -1,0 +1,32 @@
+<div class="services-page py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1 class="text-primary mb-3">Our Services</h1>
+      <p class="text-muted lead">Choose from our comprehensive range of healthcare services</p>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-section text-center mb-5">
+      <button class="btn me-2" [class.btn-primary]="selectedCategory === ''" [class.btn-outline-primary]="selectedCategory !== ''"
+        (click)="filterByCategory('')">
+        All Services
+      </button>
+      <button class="btn me-2" *ngFor="let category of categories" [class.btn-primary]="selectedCategory === category"
+        [class.btn-outline-primary]="selectedCategory !== category" (click)="filterByCategory(category)">
+        {{ category }}
+      </button>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="row g-4">
+      <div class="col-md-4" *ngFor="let service of filteredServices">
+        <app-service-card [service]="service"></app-service-card>
+      </div>
+    </div>
+
+    <!-- No Services Message -->
+    <div class="text-center mt-5" *ngIf="filteredServices.length === 0">
+      <p class="text-muted">No services available in this category.</p>
+    </div>
+  </div>
+</div>

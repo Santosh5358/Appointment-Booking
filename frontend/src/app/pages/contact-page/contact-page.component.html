@@ -1,0 +1,160 @@
+<div class="contact-page py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1 class="text-primary mb-3">Contact Us</h1>
+      <p class="text-muted lead">Get in touch with us for any queries or appointments</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Contact Form -->
+      <div class="col-lg-6">
+        <div class="card shadow h-100">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4 text-primary">Send us a Message</h4>
+
+            <!-- Success Message -->
+            <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
+              {{ successMessage }}
+              <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+            </div>
+
+            <!-- Error Message -->
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+              {{ errorMessage }}
+              <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+            </div>
+
+            <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+              <!-- Name -->
+              <div class="mb-3">
+                <label for="name" class="form-label">Full Name *</label>
+                <input type="text" class="form-control" id="name" formControlName="name"
+                  [class.is-invalid]="submitted && f['name'].errors">
+                <div class="invalid-feedback" *ngIf="submitted && f['name'].errors">
+                  <span *ngIf="f['name'].errors['required']">Name is required</span>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="email" class="form-label">Email *</label>
+                <input type="email" class="form-control" id="email" formControlName="email"
+                  [class.is-invalid]="submitted && f['email'].errors">
+                <div class="invalid-feedback" *ngIf="submitted && f['email'].errors">
+                  <span *ngIf="f['email'].errors['required']">Email is required</span>
+                  <span *ngIf="f['email'].errors['email']">Invalid email</span>
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="mb-3">
+                <label for="phone" class="form-label">Phone (10 digits) *</label>
+                <input type="tel" class="form-control" id="phone" formControlName="phone"
+                  [class.is-invalid]="submitted && f['phone'].errors">
+                <div class="invalid-feedback" *ngIf="submitted && f['phone'].errors">
+                  <span *ngIf="f['phone'].errors['required']">Phone is required</span>
+                  <span *ngIf="f['phone'].errors['pattern']">Phone must be 10 digits</span>
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div class="mb-3">
+                <label for="subject" class="form-label">Subject *</label>
+                <input type="text" class="form-control" id="subject" formControlName="subject"
+                  [class.is-invalid]="submitted && f['subject'].errors">
+                <div class="invalid-feedback" *ngIf="submitted && f['subject'].errors">
+                  <span *ngIf="f['subject'].errors['required']">Subject is required</span>
+                </div>
+              </div>
+
+              <!-- Message -->
+              <div class="mb-3">
+                <label for="message" class="form-label">Message *</label>
+                <textarea class="form-control" id="message" formControlName="message" rows="5"
+                  [class.is-invalid]="submitted && f['message'].errors"></textarea>
+                <div class="invalid-feedback" *ngIf="submitted && f['message'].errors">
+                  <span *ngIf="f['message'].errors['required']">Message is required</span>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary w-100 btn-lg" [disabled]="loading">
+                <span *ngIf="!loading"><i class="bi bi-send"></i> Send Message</span>
+                <span *ngIf="loading"><i class="spinner-border spinner-border-sm me-2"></i> Sending...</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="col-lg-6">
+        <div class="card shadow mb-4" *ngIf="doctorProfile">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4 text-primary">Contact Information</h4>
+
+            <div class="contact-info">
+              <div class="info-item mb-4">
+                <h6 class="text-primary mb-2">
+                  <i class="bi bi-person-badge"></i> Doctor
+                </h6>
+                <p class="ms-3">{{ doctorProfile.title }} {{ doctorProfile.name }}</p>
+              </div>
+
+              <div class="info-item mb-4">
+                <h6 class="text-primary mb-2">
+                  <i class="bi bi-telephone"></i> Phone
+                </h6>
+                <p class="ms-3">
+                  <a href="tel:{{ doctorProfile.phone }}">{{ doctorProfile.phone }}</a>
+                </p>
+              </div>
+
+              <div class="info-item mb-4">
+                <h6 class="text-primary mb-2">
+                  <i class="bi bi-envelope"></i> Email
+                </h6>
+                <p class="ms-3">
+                  <a href="mailto:{{ doctorProfile.email }}">{{ doctorProfile.email }}</a>
+                </p>
+              </div>
+
+              <div class="info-item mb-4">
+                <h6 class="text-primary mb-2">
+                  <i class="bi bi-geo-alt"></i> Address
+                </h6>
+                <p class="ms-3">{{ doctorProfile.address }}</p>
+              </div>
+
+              <div class="info-item" *ngIf="doctorProfile.googleMapLink">
+                <h6 class="text-primary mb-2">
+                  <i class="bi bi-map"></i> Location
+                </h6>
+                <p class="ms-3">
+                  <a href="{{ doctorProfile.googleMapLink }}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="bi bi-arrow-up-right"></i> Open Google Maps
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operating Hours -->
+        <div class="card shadow" *ngIf="doctorProfile && doctorProfile.operatingHours">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4 text-primary">Operating Hours</h4>
+            <div class="hours-list">
+              <div class="hours-item d-flex justify-content-between mb-2" *ngFor="let day of ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']">
+                <span class="fw-500">{{ day }}</span>
+                <span class="text-muted" *ngIf="doctorProfile.operatingHours[day.toLowerCase()]">
+                  {{ doctorProfile.operatingHours[day.toLowerCase()].start }} - {{ doctorProfile.operatingHours[day.toLowerCase()].end }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

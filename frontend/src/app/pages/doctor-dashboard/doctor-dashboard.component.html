@@ -1,0 +1,449 @@
+<div class="doctor-dashboard">
+  <!-- Login Section -->
+  <div *ngIf="!isLoggedIn" class="login-container">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+          <div class="card shadow-lg login-card">
+            <div class="card-body p-5">
+              <div class="text-center mb-5">
+                <i class="bi bi-shield-lock" style="font-size: 3rem; color: #0066cc;"></i>
+                <h2 class="mt-3" style="color: #1a3a52;">Doctor Portal</h2>
+                <p class="text-muted mt-2">Secure Access to Dashboard</p>
+              </div>
+
+              <!-- Error Message -->
+              <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+                <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
+                <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+              </div>
+
+              <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+                <div class="mb-4">
+                  <label for="email" class="form-label" style="font-weight: 600;">Email</label>
+                  <input 
+                    type="email" 
+                    class="form-control form-control-lg" 
+                    id="email" 
+                    formControlName="email"
+                    placeholder="Enter your email"
+                    [class.is-invalid]="emailSubmitted && f['email'].errors"
+                    style="border-radius: 8px; padding: 12px 15px;">
+                  <div class="invalid-feedback" *ngIf="emailSubmitted && f['email'].errors">
+                    <span *ngIf="f['email'].errors['required']">Email is required</span>
+                    <span *ngIf="f['email'].errors['email']">Please enter a valid email address</span>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="password" class="form-label" style="font-weight: 600;">Password</label>
+                  <input 
+                    type="password" 
+                    class="form-control form-control-lg" 
+                    id="password" 
+                    formControlName="password"
+                    placeholder="Enter your password"
+                    [class.is-invalid]="passwordSubmitted && f['password'].errors"
+                    style="border-radius: 8px; padding: 12px 15px;">
+                  <div class="invalid-feedback" *ngIf="passwordSubmitted && f['password'].errors">
+                    <span *ngIf="f['password'].errors['required']">Password is required</span>
+                    <span *ngIf="f['password'].errors['minlength']">Password must be at least 4 characters</span>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="btn btn-lg w-100"
+                  style="background: linear-gradient(135deg, #0066cc 0%, #1abc9c 100%); color: white; border-radius: 8px; font-weight: 600;">
+                  <i class="bi bi-box-arrow-in-right"></i> Login
+                </button>
+              </form>
+
+              <p class="text-center text-muted mt-4" style="font-size: 0.9rem;">
+                <strong>Demo Password:</strong> doctor123
+              </p>
+              <p class="nav-item">
+                <a class="nav-link" href="/admin-dashboard" (click)="navigate('admin-dashboard'); closeMenu()" style="color: #dc3545; font-weight: 600;">
+                  <i class="bi">Login As Admin: </i> Admin
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div *ngIf="isLoggedIn" class="dashboard-container" #profileSection>
+    <!-- Header -->
+    <div class="dashboard-header" style="background: linear-gradient(135deg, #0066cc 0%, #1abc9c 100%); color: white; padding: 30px 0;">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1 class="mb-2">Doctor Dashboard</h1>
+            <p class="mb-0">Manage bookings and your profile</p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <button class="btn btn-light" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container py-5">
+      <!-- Success Message -->
+      <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
+        <i class="bi bi-check-circle"></i> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+        <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="dashboard-tabs mb-5">
+        <div class="btn-group" role="group" style="width: 100%; max-width: 400px;">
+          <button 
+            type="button" 
+            class="btn btn-lg flex-grow-1"
+            [class.active]="activeTab === 'bookings'"
+            (click)="switchTab('bookings')"
+            style="border-radius: 8px 0 0 8px;"
+            [ngClass]="activeTab === 'bookings' ? 'btn-primary' : 'btn-outline-primary'">
+            <i class="bi bi-calendar-check"></i> Bookings
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-lg flex-grow-1"
+            [class.active]="activeTab === 'profile'"
+            (click)="switchTab('profile')"
+            style="border-radius: 0 8px 8px 0;"
+            [ngClass]="activeTab === 'profile' ? 'btn-primary' : 'btn-outline-primary'">
+            <i class="bi bi-person-circle"></i> Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Bookings Tab -->
+      <div *ngIf="activeTab === 'bookings'">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h3>Manage Bookings</h3>
+          </div>
+          <div class="col-md-6">
+            <select 
+              class="form-select" 
+              [(ngModel)]="bookingStatus" 
+              (change)="onStatusFilterChange()"
+              style="border-radius: 8px;">
+              <option value="all">All Bookings</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="loading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && filteredBookings.length === 0" class="alert alert-info">
+          <i class="bi bi-info-circle"></i> No bookings found for this status.
+        </div>
+
+        <div *ngIf="!loading && filteredBookings.length > 0">
+          <div class="table-responsive">
+            <table class="table table-hover" style="border-radius: 8px; overflow: hidden;">
+              <thead style="background: #f5f8fb;">
+                <tr>
+                  <th>Patient Name</th>
+                  <th>Service</th>
+                  <th>Date & Time</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let booking of filteredBookings" style="border-bottom: 1px solid #eee;">
+                  <td style="font-weight: 600;">{{ booking.patientName }}</td>
+                  <td>{{ getServiceName(booking.service) }}</td>
+                  <td>
+                    {{ booking.appointmentDate | date: 'MMM dd, yyyy' }}<br>
+                    <small class="text-muted">{{ booking.appointmentTime }}</small>
+                  </td>
+                  <td>
+                    <small>
+                      📧 {{ booking.patientEmail }}<br>
+                      📞 {{ booking.patientPhone }}
+                    </small>
+                  </td>
+                  <td>
+                    <span [class]="'badge ' + getStatusBadgeClass(booking.status)" style="padding: 6px 10px; font-size: 0.85rem;">
+                      {{ booking.status | uppercase }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <!-- Confirm booking (only if pending) -->
+                    <button 
+                      *ngIf="booking.status === 'pending' && booking._id"
+                      type="button" 
+                      class="btn btn-success btn-sm me-2"
+                      (click)="updateBookingStatus(booking._id!, 'confirmed')"
+                      title="Confirm booking">
+                      <i class="bi bi-check-circle"></i>
+                    </button>
+
+                    <!-- Mark as completed (only if confirmed) -->
+                    <button 
+                      *ngIf="booking.status === 'confirmed' && booking._id"
+                      type="button" 
+                      class="btn btn-info btn-sm me-2"
+                      (click)="updateBookingStatus(booking._id!, 'completed')"
+                      title="Mark as completed">
+                      <i class="bi bi-check2-all"></i>
+                    </button>
+
+                    <!-- Cancel booking (if not cancelled) -->
+                    <button 
+                      *ngIf="booking.status !== 'cancelled' && booking._id"
+                      type="button" 
+                      class="btn btn-warning btn-sm me-2"
+                      (click)="updateBookingStatus(booking._id!, 'cancelled')"
+                      title="Cancel booking">
+                      <i class="bi bi-x-circle"></i>
+                    </button>
+
+                    <!-- Delete booking (always available) -->
+                    <button 
+                      *ngIf="booking._id"
+                      type="button" 
+                      class="btn btn-danger btn-sm"
+                      title="Delete booking"
+                      (click)="deleteBooking(booking._id!)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Tab -->
+      <div *ngIf="activeTab === 'profile'">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none;">
+              <div class="card-body p-5">
+                <h3 class="mb-4">Edit Doctor Profile</h3>
+
+                <!-- Success Message -->
+                <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="profileSuccessMessage">
+                  <i class="bi bi-check-circle"></i> {{ profileSuccessMessage }}
+                  <button type="button" class="btn-close" (click)="profileSuccessMessage = ''"></button>
+                </div>
+
+                <!-- Error Message -->
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="profileErrorMessage">
+                  <i class="bi bi-exclamation-circle"></i> {{ profileErrorMessage }}
+                  <button type="button" class="btn-close" (click)="profileErrorMessage = ''"></button>
+                </div>
+
+                <form [formGroup]="profileForm" (ngSubmit)="onProfileSubmit()" *ngIf="profileForm">
+                  <!-- Name -->
+                  <div class="mb-4">
+                    <label for="name" class="form-label" style="font-weight: 600;">Full Name *</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="name" 
+                      formControlName="name"
+                      [class.is-invalid]="profileSubmitted && pf['name'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;">
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['name'].errors">
+                      <span *ngIf="pf['name'].errors['required']">Name is required</span>
+                      <span *ngIf="pf['name'].errors['minlength']">Name must be at least 3 characters</span>
+                    </div>
+                  </div>
+
+                  <!-- Title -->
+                  <div class="mb-4">
+                    <label for="title" class="form-label" style="font-weight: 600;">Title (Dr., Prof., etc.) *</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="title" 
+                      formControlName="title"
+                      placeholder="e.g., Dr."
+                      [class.is-invalid]="profileSubmitted && pf['title'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;">
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['title'].errors">
+                      Title is required
+                    </div>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="mb-4">
+                    <label for="email" class="form-label" style="font-weight: 600;">Email *</label>
+                    <input 
+                      type="email" 
+                      class="form-control" 
+                      id="email" 
+                      formControlName="email"
+                      [class.is-invalid]="profileSubmitted && pf['email'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;">
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['email'].errors">
+                      <span *ngIf="pf['email'].errors['required']">Email is required</span>
+                      <span *ngIf="pf['email'].errors['email']">Invalid email format</span>
+                    </div>
+                  </div>
+
+                  <!-- Phone -->
+                  <div class="mb-4">
+                    <label for="phone" class="form-label" style="font-weight: 600;">Phone Number *</label>
+                    <input 
+                      type="tel" 
+                      class="form-control" 
+                      id="phone" 
+                      formControlName="phone"
+                      placeholder="+91-XXXXXXXXXX"
+                      [class.is-invalid]="profileSubmitted && pf['phone'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;">
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['phone'].errors">
+                      <span *ngIf="pf['phone'].errors['required']">Phone is required</span>
+                      <span *ngIf="pf['phone'].errors['pattern']">Invalid phone format</span>
+                    </div>
+                  </div>
+
+                  <!-- Address -->
+                  <div class="mb-4">
+                    <label for="address" class="form-label" style="font-weight: 600;">Address *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="address" 
+                      formControlName="address"
+                      rows="2"
+                      [class.is-invalid]="profileSubmitted && pf['address'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['address'].errors">
+                      <span *ngIf="pf['address'].errors['required']">Address is required</span>
+                      <span *ngIf="pf['address'].errors['minlength']">Address must be at least 5 characters</span>
+                    </div>
+                  </div>
+
+                  <!-- Experience -->
+                  <div class="mb-4">
+                    <label for="experience" class="form-label" style="font-weight: 600;">Years of Experience *</label>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      id="experience" 
+                      formControlName="experience"
+                      min="0"
+                      [class.is-invalid]="profileSubmitted && pf['experience'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;">
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['experience'].errors">
+                      Experience is required
+                    </div>
+                  </div>
+
+                  <!-- Specializations -->
+                  <div class="mb-4">
+                    <label for="specializations" class="form-label" style="font-weight: 600;">Specializations (comma-separated) *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="specializations" 
+                      formControlName="specializations"
+                      rows="2"
+                      placeholder="e.g., Physiotherapy, Acupuncture, Acupressure"
+                      [class.is-invalid]="profileSubmitted && pf['specializations'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['specializations'].errors">
+                      Specializations are required
+                    </div>
+                  </div>
+
+                  <!-- Bio -->
+                  <div class="mb-4">
+                    <label for="bio" class="form-label" style="font-weight: 600;">Bio/About *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="bio" 
+                      formControlName="bio"
+                      rows="4"
+                      placeholder="Write a brief biography..."
+                      [class.is-invalid]="profileSubmitted && pf['bio'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                    <div class="invalid-feedback" *ngIf="profileSubmitted && pf['bio'].errors">
+                      Bio is required
+                    </div>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <button 
+                    type="submit" 
+                    class="btn btn-lg w-100"
+                    [disabled]="profileLoading"
+                    style="background: linear-gradient(135deg, #0066cc 0%, #1abc9c 100%); color: white; border-radius: 8px; font-weight: 600;">
+                    <span *ngIf="!profileLoading">
+                      <i class="bi bi-cloud-upload"></i> Update Profile
+                    </span>
+                    <span *ngIf="profileLoading">
+                      <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Updating...
+                    </span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Preview -->
+          <div class="col-lg-4">
+            <div class="card shadow-sm" style="border-radius: 12px; border: none; position: sticky; top: 20px;">
+              <div class="card-body p-4 text-center">
+                <h5 class="mb-4">Profile Preview</h5>
+                <div style="background: linear-gradient(135deg, #f5f8fb 0%, #f0f4ff 100%); border-radius: 12px; padding: 20px;">
+                  <h4 style="color: #0066cc; margin-bottom: 10px;">
+                    {{ profileForm.get('title')?.value }} {{ profileForm.get('name')?.value }}
+                  </h4>
+                  <p style="color: #666; margin-bottom: 15px;">
+                    {{ profileForm.get('experience')?.value }}+ Years Experience
+                  </p>
+                  <div class="mb-3">
+                    <small style="color: #999;">
+                      📧 {{ profileForm.get('email')?.value }}<br>
+                      📞 {{ profileForm.get('phone')?.value }}<br>
+                      📍 {{ profileForm.get('address')?.value }}
+                    </small>
+                  </div>
+                  <div style="border-top: 1px solid #ddd; padding-top: 15px;">
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 0;">
+                      <strong>Specializations:</strong><br>
+                      {{ profileForm.get('specializations').value }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

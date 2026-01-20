@@ -1,0 +1,879 @@
+<div class="admin-dashboard">
+  <!-- Login Section -->
+  <div *ngIf="!isLoggedIn" class="login-container">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+          <div class="card shadow-lg login-card">
+            <div class="card-body p-5">
+              <div class="text-center mb-5">
+                <i class="bi bi-shield-exclamation" style="font-size: 3rem; color: #dc3545;"></i>
+                <h2 class="mt-3" style="color: #1a3a52;">Admin Portal</h2>
+                <p class="text-muted mt-2">Manage Website & Doctor Details</p>
+              </div>
+
+              <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+                <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
+                <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+              </div>
+
+              <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
+                <div class="mb-4">
+                  <label for="password" class="form-label" style="font-weight: 600;">Admin Password</label>
+                  <input 
+                    type="password" 
+                    class="form-control form-control-lg" 
+                    id="password" 
+                    formControlName="password"
+                    placeholder="Enter admin password"
+                    [class.is-invalid]="passwordSubmitted && f['password'].errors"
+                    style="border-radius: 8px; padding: 12px 15px;">
+                  <div class="invalid-feedback" *ngIf="passwordSubmitted && f['password'].errors">
+                    <span *ngIf="f['password'].errors['required']">Password is required</span>
+                    <span *ngIf="f['password'].errors['minlength']">Password must be at least 4 characters</span>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit" 
+                  class="btn btn-lg w-100"
+                  style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-radius: 8px; font-weight: 600;">
+                  <i class="bi bi-shield-check"></i> Login
+                </button>
+              </form>
+
+              <p class="text-center text-muted mt-4" style="font-size: 0.9rem;">
+                <strong>Demo Password:</strong> admin123
+              </p>
+              <p class="nav-item">
+                <a class="nav-link" href="/doctor-dashboard" (click)="navigate('doctor-dashboard'); closeMenu()" style="color: #dc3545; font-weight: 600;">
+                  <i class="bi">Login As Doctor: </i> Doctor
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Section -->
+  <div *ngIf="isLoggedIn" class="dashboard-container">
+    <!-- Header -->
+    <div class="admin-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 30px 0;">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h1 class="mb-2"><i class="bi bi-gear-fill"></i> Admin Control Panel</h1>
+            <p class="mb-0">Manage doctors, bookings, services and website settings</p>
+          </div>
+          <!-- <div class="col-md-4 text-md-end">
+            <button class="btn btn-light" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container py-5">
+      <!-- Success Message -->
+      <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
+        <i class="bi bi-check-circle"></i> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+        <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="admin-tabs mb-5">
+        <div class="btn-group flex-wrap" role="group">
+          <button 
+            type="button" 
+            class="btn btn-lg"
+            [class.active]="activeTab === 'dashboard'"
+            (click)="switchTab('dashboard')"
+            [ngClass]="activeTab === 'dashboard' ? 'btn-danger' : 'btn-outline-danger'">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-lg"
+            [class.active]="activeTab === 'bookings'"
+            (click)="switchTab('bookings')"
+            [ngClass]="activeTab === 'bookings' ? 'btn-danger' : 'btn-outline-danger'">
+            <i class="bi bi-calendar-check"></i> Bookings
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-lg"
+            [class.active]="activeTab === 'doctor'"
+            (click)="switchTab('doctor')"
+            [ngClass]="activeTab === 'doctor' ? 'btn-danger' : 'btn-outline-danger'">
+            <i class="bi bi-person-circle"></i> Profile
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-lg"
+            [class.active]="activeTab === 'doctors'"
+            (click)="switchTab('doctors')"
+            [ngClass]="activeTab === 'doctors' ? 'btn-danger' : 'btn-outline-danger'">
+            <i class="bi bi-people"></i> Doctors
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-lg"
+            [class.active]="activeTab === 'services'"
+            (click)="switchTab('services')"
+            [ngClass]="activeTab === 'services' ? 'btn-danger' : 'btn-outline-danger'">
+            <i class="bi bi-briefcase"></i> Services
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-lg"
+            [class.active]="activeTab === 'settings'"
+            (click)="switchTab('settings')"
+            [ngClass]="activeTab === 'settings' ? 'btn-danger' : 'btn-outline-danger'">
+            <i class="bi bi-sliders"></i> Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div *ngIf="activeTab === 'dashboard'">
+        <h3 class="mb-4">Dashboard Overview</h3>
+        
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+          <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-value">{{ totalBookings }}</div>
+              <div class="stat-label">Total Bookings</div>
+              <i class="bi bi-calendar-check"></i>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="stat-card pending">
+              <div class="stat-value">{{ pendingBookings }}</div>
+              <div class="stat-label">Pending</div>
+              <i class="bi bi-hourglass"></i>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="stat-card confirmed">
+              <div class="stat-value">{{ confirmedBookings }}</div>
+              <div class="stat-label">Confirmed</div>
+              <i class="bi bi-check-circle"></i>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="stat-card services">
+              <div class="stat-value">{{ services.length }}</div>
+              <div class="stat-label">Services</div>
+              <i class="bi bi-briefcase"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="mb-4">Recent Bookings</h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead style="background: #f5f8fb;">
+                  <tr>
+                    <th>Patient</th>
+                    <th>Service</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let booking of recentBookings">
+                    <td style="font-weight: 600;">{{ booking.patientName }}</td>
+                    <td>{{ getServiceName(booking.service) }}</td>
+                    <td>{{ booking.appointmentDate | date: 'MMM dd, yyyy' }} {{ booking.appointmentTime }}</td>
+                    <td>
+                      <span [class]="'badge ' + getStatusBadgeClass(booking.status)" *ngIf="booking.status">
+                        {{ booking.status | uppercase }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bookings Tab -->
+      <div *ngIf="activeTab === 'bookings'">
+        <div class="row mb-4 align-items-center">
+          <div class="col-md-6">
+            <h3>All Bookings</h3>
+          </div>
+          <div class="col-md-6">
+            <select 
+              class="form-select" 
+              [(ngModel)]="bookingStatusFilter" 
+              (change)="onBookingFilterChange()"
+              style="border-radius: 8px;">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="bookingLoading" class="text-center py-5">
+          <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+
+        <div *ngIf="!bookingLoading && filteredBookings.length === 0" class="alert alert-info">
+          No bookings found
+        </div>
+
+        <div *ngIf="!bookingLoading && filteredBookings.length > 0" class="card shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead style="background: #f5f8fb;">
+                <tr>
+                  <th>Patient</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Service</th>
+                  <th>Doctor</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let booking of filteredBookings">
+                  <td style="font-weight: 600;">{{ booking.patientName }}</td>
+                  <td>{{ booking.patientEmail }}</td>
+                  <td>{{ booking.patientPhone }}</td>
+                  <td>{{ getServiceName(booking.service) }}</td>
+                  <td>{{ getDoctorName(booking.doctor) }}</td>
+                  <td>{{ booking.appointmentDate | date: 'MMM dd' }} {{ booking.appointmentTime }}</td>
+                  <td>
+                    <span [class]="'badge ' + getStatusBadgeClass(booking.status)">
+                      {{ booking.status | uppercase }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button 
+                        *ngIf="booking.status === 'pending'"
+                        type="button" 
+                        class="btn btn-success btn-sm"
+                        (click)="updateBookingStatus(booking._id!, 'confirmed')">
+                        <i class="bi bi-check-circle"></i> Confirm
+                      </button>
+                      <button 
+                        type="button" 
+                        class="btn btn-danger btn-sm"
+                        (click)="deleteBooking(booking._id!)">
+                        <i class="bi bi-trash"></i> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doctor Tab -->
+      <div *ngIf="activeTab === 'doctor'">
+        <h3 class="mb-4">Manage Doctor Profile</h3>
+
+        <!-- <div class="row">
+          <div class="col-lg-8">
+            <div class="card shadow-sm">
+              <div class="card-body p-5">
+                <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="doctorSuccessMessage">
+                  <i class="bi bi-check-circle"></i> {{ doctorSuccessMessage }}
+                  <button type="button" class="btn-close" (click)="doctorSuccessMessage = ''"></button>
+                </div>
+
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="doctorErrorMessage">
+                  <i class="bi bi-exclamation-circle"></i> {{ doctorErrorMessage }}
+                  <button type="button" class="btn-close" (click)="doctorErrorMessage = ''"></button>
+                </div>
+
+                <form [formGroup]="doctorForm" (ngSubmit)="onDoctorSubmit()" *ngIf="doctorForm">
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="docTitle" class="form-label" style="font-weight: 600;">Title *</label>
+                      <input 
+                        type="text" 
+                        class="form-control" 
+                        id="docTitle" 
+                        formControlName="title"
+                        [class.is-invalid]="doctorSubmitted && df['title'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="docName" class="form-label" style="font-weight: 600;">Full Name *</label>
+                      <input 
+                        type="text" 
+                        class="form-control" 
+                        id="docName" 
+                        formControlName="name"
+                        [class.is-invalid]="doctorSubmitted && df['name'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="docEmail" class="form-label" style="font-weight: 600;">Email *</label>
+                      <input 
+                        type="email" 
+                        class="form-control" 
+                        id="docEmail" 
+                        formControlName="email"
+                        [class.is-invalid]="doctorSubmitted && df['email'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="docPhone" class="form-label" style="font-weight: 600;">Phone *</label>
+                      <input 
+                        type="tel" 
+                        class="form-control" 
+                        id="docPhone" 
+                        formControlName="phone"
+                        [class.is-invalid]="doctorSubmitted && df['phone'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="docAddress" class="form-label" style="font-weight: 600;">Address *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="docAddress" 
+                      formControlName="address"
+                      rows="2"
+                      [class.is-invalid]="doctorSubmitted && df['address'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="docExp" class="form-label" style="font-weight: 600;">Years of Experience *</label>
+                      <input 
+                        type="number" 
+                        class="form-control" 
+                        id="docExp" 
+                        formControlName="experience"
+                        min="0"
+                        [class.is-invalid]="doctorSubmitted && df['experience'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="docSpec" class="form-label" style="font-weight: 600;">Specializations (comma-separated) *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="docSpec" 
+                      formControlName="specializations"
+                      rows="2"
+                      placeholder="e.g., Physiotherapy, Acupuncture"
+                      [class.is-invalid]="doctorSubmitted && df['specializations'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="docBio" class="form-label" style="font-weight: 600;">Bio/About *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="docBio" 
+                      formControlName="bio"
+                      rows="4"
+                      placeholder="Write about the doctor..."
+                      [class.is-invalid]="doctorSubmitted && df['bio'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    class="btn btn-lg w-100"
+                    [disabled]="doctorLoading"
+                    style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-radius: 8px; font-weight: 600;">
+                    <span *ngIf="!doctorLoading">
+                      <i class="bi bi-cloud-upload"></i> Update Doctor Profile
+                    </span>
+                    <span *ngIf="doctorLoading">
+                      <span class="spinner-border spinner-border-sm me-2"></span> Updating...
+                    </span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div> -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                <div class="card-body p-5">
+
+                    <!-- Success Alert -->
+                    <div class="alert alert-success alert-dismissible fade show" *ngIf="doctorSuccessMessage" role="alert">
+                    <i class="bi bi-check-circle"></i> {{ doctorSuccessMessage }}
+                    <button type="button" class="btn-close" (click)="doctorSuccessMessage = ''"></button>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div class="alert alert-danger alert-dismissible fade show" *ngIf="doctorErrorMessage" role="alert">
+                    <i class="bi bi-exclamation-circle"></i> {{ doctorErrorMessage }}
+                    <button type="button" class="btn-close" (click)="doctorErrorMessage = ''"></button>
+                    </div>
+
+                    <!-- Doctor Form -->
+                    <form [formGroup]="doctorForm" (ngSubmit)="onDoctorSubmit()" *ngIf="doctorForm">
+                    
+                    <!-- Name and Title -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                        <label for="docTitle" class="form-label">Title *</label>
+                        <input type="text" id="docTitle" class="form-control" formControlName="title" 
+                                [class.is-invalid]="doctorSubmitted && df['title'].errors" placeholder="Dr., Prof., etc.">
+                        </div>
+                        <div class="col-md-6">
+                        <label for="docName" class="form-label">Full Name *</label>
+                        <input type="text" id="docName" class="form-control" formControlName="name" 
+                                [class.is-invalid]="doctorSubmitted && df['name'].errors" placeholder="John Doe">
+                        </div>
+                    </div>
+
+                    <!-- Email and Phone -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                        <label for="docEmail" class="form-label">Email *</label>
+                        <input type="email" id="docEmail" class="form-control" formControlName="email" 
+                                [class.is-invalid]="doctorSubmitted && df['email'].errors" placeholder="email@example.com">
+                        </div>
+                        <div class="col-md-6">
+                        <label for="docPhone" class="form-label">Phone *</label>
+                        <input type="tel" id="docPhone" class="form-control" formControlName="phone" 
+                                [class.is-invalid]="doctorSubmitted && df['phone'].errors" placeholder="+1 234 567 890">
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="mb-3">
+                        <label for="docAddress" class="form-label">Address *</label>
+                        <textarea id="docAddress" class="form-control" formControlName="address" rows="2"
+                                [class.is-invalid]="doctorSubmitted && df['address'].errors" placeholder="123 Street, City, Country"></textarea>
+                    </div>
+
+                    <!-- Experience and Specializations -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                        <label for="docExp" class="form-label">Years of Experience *</label>
+                        <input type="number" id="docExp" class="form-control" formControlName="experience" min="0"
+                                [class.is-invalid]="doctorSubmitted && df['experience'].errors" placeholder="e.g., 5">
+                        </div>
+                        <div class="col-md-6">
+                        <label for="docSpec" class="form-label">Specializations *</label>
+                        <input type="text" id="docSpec" class="form-control" formControlName="specializations"
+                                [class.is-invalid]="doctorSubmitted && df['specializations'].errors"
+                                placeholder="e.g., Physiotherapy, Acupuncture">
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="mb-4">
+                        <label for="docBio" class="form-label">Bio/About *</label>
+                        <textarea id="docBio" class="form-control" formControlName="bio" rows="4"
+                                [class.is-invalid]="doctorSubmitted && df['bio'].errors"
+                                placeholder="Write a brief bio about the doctor..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-danger btn-lg w-100" [disabled]="doctorLoading">
+                        <ng-container *ngIf="!doctorLoading">
+                        <i class="bi bi-cloud-upload"></i> Update Doctor Profile
+                        </ng-container>
+                        <ng-container *ngIf="doctorLoading">
+                        <span class="spinner-border spinner-border-sm me-2"></span> Updating...
+                        </ng-container>
+                    </button>
+
+                    </form>
+                </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+      <!-- Doctors Tab -->
+      <div *ngIf="activeTab === 'doctors'">
+        <h3 class="mb-4">{{ editingDoctorId ? 'Edit Doctor' : 'Add New Doctor' }}</h3>
+
+        <div class="row mb-5">
+          <div class="col-lg-6">
+            <div class="card shadow-sm">
+              <div class="card-body p-5">
+                <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="doctorsSuccessMessage">
+                  <i class="bi bi-check-circle"></i> {{ doctorsSuccessMessage }}
+                  <button type="button" class="btn-close" (click)="doctorsSuccessMessage = ''"></button>
+                </div>
+
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="doctorsErrorMessage">
+                  <i class="bi bi-exclamation-circle"></i> {{ doctorsErrorMessage }}
+                  <button type="button" class="btn-close" (click)="doctorsErrorMessage = ''"></button>
+                </div>
+
+                <form [formGroup]="doctorsForm" (ngSubmit)="onDoctorsSubmit()" *ngIf="doctorsForm">
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="docTitle" class="form-label" style="font-weight: 600;">Title *</label>
+                      <input 
+                        type="text" 
+                        class="form-control" 
+                        id="docTitle" 
+                        formControlName="title"
+                        placeholder="e.g., Dr."
+                        [class.is-invalid]="doctorsSubmitted && docf['title'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="docName" class="form-label" style="font-weight: 600;">Full Name *</label>
+                      <input 
+                        type="text" 
+                        class="form-control" 
+                        id="docName" 
+                        formControlName="name"
+                        [class.is-invalid]="doctorsSubmitted && docf['name'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="docEmail" class="form-label" style="font-weight: 600;">Email *</label>
+                      <input 
+                        type="email" 
+                        class="form-control" 
+                        id="docEmail" 
+                        formControlName="email"
+                        [class.is-invalid]="doctorsSubmitted && docf['email'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="docPhone" class="form-label" style="font-weight: 600;">Phone *</label>
+                      <input 
+                        type="tel" 
+                        class="form-control" 
+                        id="docPhone" 
+                        formControlName="phone"
+                        [class.is-invalid]="doctorsSubmitted && docf['phone'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="docAddress" class="form-label" style="font-weight: 600;">Clinic Address *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="docAddress" 
+                      formControlName="address"
+                      rows="2"
+                      [class.is-invalid]="doctorsSubmitted && docf['address'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="docExp" class="form-label" style="font-weight: 600;">Years of Experience *</label>
+                      <input 
+                        type="number" 
+                        class="form-control" 
+                        id="docExp" 
+                        formControlName="experience"
+                        min="0"
+                        [class.is-invalid]="doctorsSubmitted && docf['experience'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="docSpec" class="form-label" style="font-weight: 600;">Specializations (comma-separated) *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="docSpec" 
+                      formControlName="specializations"
+                      rows="2"
+                      placeholder="e.g., Physiotherapy, Acupuncture"
+                      [class.is-invalid]="doctorsSubmitted && docf['specializations'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="docBio" class="form-label" style="font-weight: 600;">Bio/About *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="docBio" 
+                      formControlName="bio"
+                      rows="4"
+                      placeholder="Write about the doctor..."
+                      [class.is-invalid]="doctorsSubmitted && docf['bio'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+
+                  <div class="d-grid gap-2 d-md-flex">
+                    <button 
+                      type="submit" 
+                      class="btn btn-lg flex-grow-1"
+                      [disabled]="doctorsLoading"
+                      style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-radius: 8px; font-weight: 600;">
+                      <span *ngIf="!doctorsLoading">
+                        <i class="bi bi-plus-circle"></i> {{ editingDoctorId ? 'Update Doctor' : 'Add Doctor' }}
+                      </span>
+                      <span *ngIf="doctorsLoading">
+                        <span class="spinner-border spinner-border-sm me-2"></span> Saving...
+                      </span>
+                    </button>
+                    <button 
+                      *ngIf="editingDoctorId"
+                      type="button" 
+                      class="btn btn-lg btn-outline-secondary flex-grow-1"
+                      (click)="cancelEditDoctor()"
+                      style="border-radius: 8px; font-weight: 600;">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <h5 class="mb-3">Doctors List</h5>
+            <div *ngIf="doctorsLoading" class="text-center py-5">
+              <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <div *ngIf="!doctorsLoading && doctorsList.length === 0" class="alert alert-info">
+              No doctors added yet
+            </div>
+
+            <div class="list-group">
+              <div class="list-group-item" *ngFor="let doctor of doctorsList" style="border-radius: 8px; margin-bottom: 10px;">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <div style="flex-grow: 1;">
+                    <h6 class="mb-1" style="color: #1a3a52; font-weight: 600;">{{ doctor.title }} {{ doctor.name }}</h6>
+                    <p class="mb-1" style="font-size: 0.9rem; color: #666;">
+                      <i class="bi bi-envelope"></i> {{ doctor.email }}<br>
+                      <i class="bi bi-telephone"></i> {{ doctor.phone }}
+                    </p>
+                    <small style="color: #999;">
+                      <i class="bi bi-briefcase"></i> {{ doctor.experience }} years exp •
+                      <i class="bi bi-tag"></i> {{ doctor.specializations?.join(', ') || 'N/A' }}
+                    </small>
+                  </div>
+                  <div class="btn-group btn-group-sm ms-2">
+                    <button 
+                      type="button" 
+                      class="btn btn-warning btn-sm"
+                      (click)="editDoctor(doctor)">
+                      <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-danger btn-sm"
+                      (click)="deleteDoctor(doctor._id!)">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Tab -->
+      <div *ngIf="activeTab === 'services'">
+        <h3 class="mb-4">{{ editingServiceId ? 'Edit Service' : 'Add New Service' }}</h3>
+
+        <div class="row mb-5">
+          <div class="col-lg-6">
+            <div class="card shadow-sm">
+              <div class="card-body p-5">
+                <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="serviceSuccessMessage">
+                  <i class="bi bi-check-circle"></i> {{ serviceSuccessMessage }}
+                  <button type="button" class="btn-close" (click)="serviceSuccessMessage = ''"></button>
+                </div>
+
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="serviceErrorMessage">
+                  <i class="bi bi-exclamation-circle"></i> {{ serviceErrorMessage }}
+                  <button type="button" class="btn-close" (click)="serviceErrorMessage = ''"></button>
+                </div>
+
+                <form [formGroup]="serviceForm" (ngSubmit)="onServiceSubmit()" *ngIf="serviceForm">
+                  <div class="mb-4">
+                    <label for="svcName" class="form-label" style="font-weight: 600;">Service Name *</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="svcName" 
+                      formControlName="name"
+                      placeholder="e.g., Physiotherapy"
+                      [class.is-invalid]="serviceSubmitted && sf['name'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="svcDesc" class="form-label" style="font-weight: 600;">Description *</label>
+                    <textarea 
+                      class="form-control" 
+                      id="svcDesc" 
+                      formControlName="description"
+                      rows="3"
+                      placeholder="Service description..."
+                      [class.is-invalid]="serviceSubmitted && sf['description'].errors"
+                      style="border-radius: 8px; padding: 12px 15px;"></textarea>
+                  </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Doctor</label>
+                    <select id="doctor" formControlName="doctor" class="form-select form-select-lg"
+                            [class.is-invalid]="submitted && f['doctor'].errors">
+                            <option value="">Choose a Doctor...</option>
+                        <option *ngFor="let doctor of allDoctors" [ngValue]="doctor._id">
+                        {{ doctor.title }} {{ doctor.name }} - {{ doctor.specializations?.join(', ') || 'N/A' }}
+                        </option>
+                        </select>
+                    <div class="invalid-feedback" *ngIf="submitted && f['doctor'].errors">Doctor is required</div>
+                    </div>
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category</label>
+                            <select id="category" formControlName="category" class="form-control">
+                                <option value="">Select a category</option>
+                                <option value="Physiotherapy">Physiotherapy</option>
+                                <option value="Acupuncture">Acupuncture</option>
+                                <option value="Acupressure">Acupressure</option>
+                            </select>
+                            <div *ngIf="serviceForm.get('category')?.invalid && serviceForm.get('category')?.touched" class="text-danger">
+                                Category is required
+                            </div>
+                        </div>
+                    </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-4">
+                      <label for="svcPrice" class="form-label" style="font-weight: 600;">Price (₹) *</label>
+                      <input 
+                        type="number" 
+                        class="form-control" 
+                        id="svcPrice" 
+                        formControlName="price"
+                        min="0"
+                        placeholder="0"
+                        [class.is-invalid]="serviceSubmitted && sf['price'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                      <label for="svcDuration" class="form-label" style="font-weight: 600;">Duration (mins) *</label>
+                      <input 
+                        type="number" 
+                        class="form-control" 
+                        id="svcDuration" 
+                        formControlName="duration"
+                        min="15"
+                        step="15"
+                        placeholder="30"
+                        [class.is-invalid]="serviceSubmitted && sf['duration'].errors"
+                        style="border-radius: 8px; padding: 12px 15px;">
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-2 d-md-flex">
+                    <button 
+                      type="submit" 
+                      class="btn btn-lg flex-grow-1"
+                      [disabled]="serviceLoading"
+                      style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border-radius: 8px; font-weight: 600;">
+                      <span *ngIf="!serviceLoading">
+                        <i class="bi bi-plus-circle"></i> {{ editingServiceId ? 'Update Service' : 'Add Service' }}
+                      </span>
+                      <span *ngIf="serviceLoading">
+                        <span class="spinner-border spinner-border-sm me-2"></span> Saving...
+                      </span>
+                    </button>
+                    <button 
+                      *ngIf="editingServiceId"
+                      type="button" 
+                      class="btn btn-lg btn-outline-secondary flex-grow-1"
+                      (click)="cancelEditService()"
+                      style="border-radius: 8px; font-weight: 600;">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <h5 class="mb-3">Services List</h5>
+            <div class="list-group">
+              <div class="list-group-item" *ngFor="let service of services" style="border-radius: 8px; margin-bottom: 10px;">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <div style="flex-grow: 1;">
+                    <h6 class="mb-1" style="color: #1a3a52; font-weight: 600;">{{ service.name }}</h6>
+                    <p class="mb-1" style="font-size: 0.9rem; color: #666;">{{ service.description }}</p>
+                    <small style="color: #999;">
+                      <i class="bi bi-currency-rupee"></i>{{ service.price }} • 
+                      <i class="bi bi-clock"></i> {{ service.duration }} mins
+                    </small>
+                  </div>
+                  <div class="btn-group btn-group-sm ms-2">
+                    <button 
+                      type="button" 
+                      class="btn btn-warning btn-sm"
+                      (click)="editService(service)">
+                      <i class="bi bi-pencil"></i> Edit
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-danger btn-sm"
+                      (click)="deleteService(service._id!)">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div *ngIf="activeTab === 'settings'">
+        <h3 class="mb-4">Website Settings</h3>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> Website settings and configuration options coming soon.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

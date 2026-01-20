@@ -1,0 +1,134 @@
+<div class="home-page">
+  <!-- Hero Section -->
+  <section class="hero-section py-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+          <h1 class="display-4 fw-bold mb-4">Your Health, Our Priority</h1>
+          <p class="lead mb-4" style="font-size: 1.15rem; font-weight: 500;">
+            Discover professional physiotherapy, acupuncture, and acupressure treatments. Experience holistic healing with our expert medical team.
+          </p>
+          <div class="d-flex gap-3 flex-wrap">
+            <button class="btn btn-light btn-lg" [routerLink]="['/booking']" style="border-radius: 50px; padding: 12px 35px; font-weight: 600;">
+              <i class="bi bi-calendar-check"></i> Book Now
+            </button>
+            <button class="btn btn-outline-light btn-lg" [routerLink]="['/services']" style="border-radius: 50px; padding: 12px 35px; font-weight: 600; border-width: 2px;">
+              <i class="bi bi-info-circle"></i> Learn More
+            </button>
+          </div>
+        </div>
+        <div class="col-lg-6 text-center">
+          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px);">
+            <img src="assets/doc-removebg-preview.png" alt="Medical Services" class="img-fluid rounded" style="max-width: 100%; height: auto; border-radius: 15px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Doctor Profile Preview -->
+  <section class="doctor-preview py-5" *ngIf="doctorProfile" style="background: white;">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-5 text-center">
+          <div class="profile-image mb-3">
+            <img [src]="doctorProfile.profileImage || 'assets/doc-removebg-preview.png'" alt="Doctor"
+              class="rounded-circle" style="width: 280px; height: 280px; object-fit: cover; border: 5px solid #0066cc; box-shadow: 0 15px 40px rgba(0, 102, 204, 0.2);">
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <h2 class="mb-3" style="color: #0066cc; font-size: 2.5rem;">{{ doctorProfile.title }} {{ doctorProfile.name }}</h2>
+          <p style="font-size: 1.1rem; color: #666; margin-bottom: 20px;">
+            <i class="bi bi-briefcase" style="color: #1abc9c; margin-right: 10px;"></i> 
+            <span style="font-weight: 600;">{{ doctorProfile.experience }}+ Years Experience</span>
+          </p>
+          <div class="specializations mb-4">
+            <span class="badge" style="background: linear-gradient(135deg, #0066cc 0%, #1abc9c 100%); padding: 8px 15px; margin-right: 8px; margin-bottom: 8px; font-size: 0.9rem;" *ngFor="let spec of doctorProfile.specializations">
+              {{ spec }}
+            </span>
+          </div>
+          <p style="font-size: 1rem; color: #555; line-height: 1.8; margin-bottom: 25px;">{{ doctorProfile.bio }}</p>
+          <button class="btn btn-lg" style="background: linear-gradient(135deg, #0066cc 0%, #1abc9c 100%); color: white; border-radius: 50px; padding: 12px 40px; font-weight: 600;" [routerLink]="['/doctor-profile']">
+            View Full Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Services -->
+  <section class="services-section py-5" style="background: linear-gradient(135deg, #f5f8fb 0%, #f0f4ff 100%);">
+    <div class="container">
+      <div class="text-center mb-5">
+        <h2 class="mb-3" style="font-size: 2.5rem; color: #1a3a52;">Our Premium Services</h2>
+        <p style="font-size: 1.1rem; color: #666;">Comprehensive treatment options tailored to your health needs</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4" *ngFor="let service of services">
+          <app-service-card [service]="service"></app-service-card>
+        </div>
+      </div>
+      <div class="text-center mt-5">
+        <button class="btn btn-lg" style="background: linear-gradient(135deg, #0066cc 0%, #1abc9c 100%); color: white; border-radius: 50px; padding: 12px 40px; font-weight: 600;" [routerLink]="['/services']">
+          View All Services
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="why-choose-us py-5" style="background: white;">
+    <div class="container">
+      <h2 class="text-center mb-5" style="font-size: 2.5rem; color: #1a3a52;">Why Choose MediCare?</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box text-center p-4" style="border-radius: 15px; background: linear-gradient(135deg, #f5f8fb 0%, #f0f4ff 100%); transition: all 0.3s ease;">
+            <div class="feature-icon mb-3">
+              <i class="bi bi-award" style="font-size: 3rem; color: #0066cc;"></i>
+            </div>
+            <h5 style="color: #1a3a52; font-weight: 700;">Expert Staff</h5>
+            <p style="color: #666;">Highly qualified healthcare professionals</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box text-center p-4" style="border-radius: 15px; background: linear-gradient(135deg, #f0fff7 0%, #e6fff9 100%); transition: all 0.3s ease;">
+            <div class="feature-icon mb-3">
+              <i class="bi bi-house-heart" style="font-size: 3rem; color: #1abc9c;"></i>
+            </div>
+            <h5 style="color: #1a3a52; font-weight: 700;">Home Visits</h5>
+            <p style="color: #666;">Convenient treatment at your doorstep</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box text-center p-4" style="border-radius: 15px; background: linear-gradient(135deg, #fff5f5 0%, #fff9f9 100%); transition: all 0.3s ease;">
+            <div class="feature-icon mb-3">
+              <i class="bi bi-shield-check" style="font-size: 3rem; color: #e74c3c;"></i>
+            </div>
+            <h5 style="color: #1a3a52; font-weight: 700;">Safe & Hygienic</h5>
+            <p style="color: #666;">Highest standards of cleanliness</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box text-center p-4" style="border-radius: 15px; background: linear-gradient(135deg, #fffbf0 0%, #fffef5 100%); transition: all 0.3s ease;">
+            <div class="feature-icon mb-3">
+              <i class="bi bi-calendar-check" style="font-size: 3rem; color: #f39c12;"></i>
+            </div>
+            <h5 style="color: #1a3a52; font-weight: 700;">Easy Booking</h5>
+            <p style="color: #666;">Quick online appointment scheduling</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section py-5" style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 50%, #1abc9c 100%); color: white;">
+    <div class="container text-center">
+      <h2 class="mb-4" style="font-size: 2.5rem;">Ready to Start Your Healing Journey?</h2>
+      <p class="lead mb-4" style="font-size: 1.15rem;">Professional healthcare services delivered with care and expertise</p>
+      <button class="btn btn-light btn-lg" style="border-radius: 50px; padding: 12px 40px; font-weight: 600;" [routerLink]="['/booking']">
+        <i class="bi bi-calendar-check"></i> Book Your Appointment
+      </button>
+    </div>
+  </section>
+</div>

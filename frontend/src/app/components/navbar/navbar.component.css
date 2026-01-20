@@ -1,0 +1,23 @@
+.navbar {
+  padding: 1rem 0;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  color: #007bff !important;
+}
+
+.navbar-brand i {
+  margin-right: 0.5rem;
+}
+
+.nav-link {
+  margin-left: 1rem;
+  font-weight: 500;
+  color: #333 !important;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #007bff !important;
+}
