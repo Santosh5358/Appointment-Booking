@@ -6,8 +6,8 @@ const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const DoctorProfile = require('../models/DoctorProfile');
 
-const accountSid = 'AC4acc4e47bee17ce473195248884ea6c4';   // Twilio Account SID
-const authToken = 'b4123452ec1d3e98dcb1b59b97bfa367';     // Twilio Auth Token
+const accountSid = process.env.TWILIO_ACCOUNT_SID;   // Twilio Account SID
+const authToken = process.env.TWILIO_AUTH_TOKEN;     // Twilio Auth Token
 const client = twilio(accountSid, authToken);
 
 
