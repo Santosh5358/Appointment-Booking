@@ -374,7 +374,6 @@ vercel
 ## Future Enhancements
 
 - [ ] Payment gateway integration (Razorpay/Stripe)
-- [ ] Email notifications for bookings
 - [ ] SMS reminders
 - [ ] Admin dashboard
 - [ ] Multi-language support
