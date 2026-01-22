@@ -5,6 +5,8 @@ import { BookingService } from '../../services/booking.service';
 import { DoctorService } from '../../services/doctor.service';
 import { Booking } from '../../models/index';
 import { Router } from '@angular/router';
+declare var bootstrap: any;
+
 
 @Component({
   selector: 'app-doctor-dashboard',
@@ -21,7 +23,13 @@ export class DoctorDashboardComponent implements OnInit {
   passwordSubmitted = false;
   emailsubmitted = false;
   isMenuOpen = false;
+  completeForm!: FormGroup;
+  selectedBooking: any;
+  selectedFile!: File;
+  formOPened = false;
+  loading = false;
 
+  
   // Dashboard tabs
   activeTab: 'bookings' | 'profile' = 'bookings';
 
@@ -29,7 +37,6 @@ export class DoctorDashboardComponent implements OnInit {
   allBookings: Booking[] = [];
   filteredBookings: Booking[] = [];
   bookingStatus = 'all'; // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
-  loading = false;
 
   // Profile
   doctorProfile: any = null;
@@ -55,7 +62,28 @@ export class DoctorDashboardComponent implements OnInit {
     if (!this.checkIfLoggedIn()) {
       this.initializePasswordForm();
     }
+    this.completeForm = this.fb.group({
+    problem: ['', Validators.required],
+    diagnosis: ['', Validators.required],
+    instructions: ['', Validators.required]
+  });
+
   }
+
+  openCompleteModal(booking: any): void {
+  this.selectedBooking = booking;
+  console.log('Selected Booking for completion:', this.selectedBooking);
+  // this.completeForm.reset(); 
+  this.formOPened = true 
+;
+}
+closeCompleteModal(): void {
+  this.formOPened = false;
+  this.completeForm.reset();
+  this.selectedFile = undefined!;
+}
+
+
 
   initializePasswordForm(): void {
   this.passwordForm = this.fb.group({
@@ -120,6 +148,40 @@ export class DoctorDashboardComponent implements OnInit {
     });
   }
 
+  onFileSelect(event: any): void {
+  this.selectedFile = event.target.files[0];
+}
+
+  submitCompletion(): void {
+  if (this.completeForm.invalid || !this.selectedBooking) return;
+  this.loading = true;
+
+  const formData = new FormData();
+  formData.append('problem', this.completeForm.value.problem);
+  formData.append('diagnosis', this.completeForm.value.diagnosis);
+  formData.append('instructions', this.completeForm.value.instructions);
+  formData.append('status', 'completed');
+
+  if (this.selectedFile) {
+    formData.append('prescription', this.selectedFile);
+  }
+
+  this.bookingService.updateBookingStatus(this.selectedBooking._id, formData)
+    .subscribe({
+      next: () => {
+        this.successMessage = 'Appointment completed successfully';
+        this.loadAllBookings();
+        this.loading = false;
+        this.formOPened = false;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: () => {
+        this.errorMessage = 'Failed to complete appointment';
+        setTimeout(() => this.errorMessage = '', 4000);
+      }
+    });
+}
+
   navigate(path: string): void {
     this.router.navigate([path]);
     this.closeMenu();
@@ -171,7 +233,7 @@ export class DoctorDashboardComponent implements OnInit {
   }
 
   updateBookingStatus(bookingId: string, newStatus: string): void {
-    this.bookingService.updateBookingStatus(bookingId, newStatus).subscribe({
+    this.bookingService.updateBookingStatus2(bookingId, newStatus).subscribe({
       next: () => {
         this.successMessage = 'Booking status updated successfully';
         this.loadAllBookings();
@@ -195,6 +257,7 @@ export class DoctorDashboardComponent implements OnInit {
         error: (error) => {
           console.error('Error deleting booking:', error);
           this.errorMessage = 'Failed to delete booking';
+          setTimeout(() => this.successMessage = '', 3000);
         }
       });
     }
@@ -211,6 +274,7 @@ export class DoctorDashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error loading profile:', error);
         this.profileErrorMessage = 'Failed to load profile';
+        setTimeout(() => this.successMessage = '', 3000);
       }
     });
   }
@@ -257,6 +321,7 @@ export class DoctorDashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error updating profile:', error);
         this.profileErrorMessage = 'Failed to update profile';
+        setTimeout(() => this.successMessage = '', 3000);
         this.profileLoading = false;
       }
     });

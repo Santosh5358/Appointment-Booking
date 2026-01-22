@@ -12,12 +12,6 @@
                 <p class="text-muted mt-2">Secure Access to Dashboard</p>
               </div>
 
-              <!-- Error Message -->
-              <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
-                <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
-                <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
-              </div>
-
               <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
                 <div class="mb-4">
                   <label for="email" class="form-label" style="font-weight: 600;">Email</label>
@@ -94,18 +88,7 @@
     </div>
 
     <div class="container py-5">
-      <!-- Success Message -->
-      <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
-        <i class="bi bi-check-circle"></i> {{ successMessage }}
-        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
-      </div>
-
-      <!-- Error Message -->
-      <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
-        <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
-        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
-      </div>
-
+    
       <!-- Tab Navigation -->
       <div class="dashboard-tabs mb-5">
         <div class="btn-group" role="group" style="width: 100%; max-width: 400px;">
@@ -208,9 +191,9 @@
                     <!-- Mark as completed (only if confirmed) -->
                     <button 
                       *ngIf="booking.status === 'confirmed' && booking._id"
-                      type="button" 
+                      type="button"
                       class="btn btn-info btn-sm me-2"
-                      (click)="updateBookingStatus(booking._id!, 'completed')"
+                      (click)="openCompleteModal(booking)"
                       title="Mark as completed">
                       <i class="bi bi-check2-all"></i>
                     </button>
@@ -243,6 +226,99 @@
           </div>
         </div>
       </div>
+
+<!-- Complete Appointment Modal -->
+    <div class="modal show d-block" *ngIf="formOPened" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 rounded-4">
+
+          <!-- Modal Header -->
+          <div class="modal-header bg-primary text-white rounded-top-4">
+            <h5 class="modal-title">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              Complete Appointment
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeCompleteModal()"></button>
+          </div>
+
+          <!-- Modal Body -->
+          <form [formGroup]="completeForm" (ngSubmit)="submitCompletion()" class="p-4">
+            <div class="modal-body">
+
+              <!-- Patient Problem -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Patient Problem</label>
+                <textarea class="form-control shadow-sm" formControlName="problem" rows="2" placeholder="Describe the patient's problem"></textarea>
+              </div>
+
+              <!-- Diagnosis -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Diagnosis</label>
+                <textarea class="form-control shadow-sm" formControlName="diagnosis" rows="2" placeholder="Enter diagnosis"></textarea>
+              </div>
+
+              <!-- Treatment / Instructions -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Treatment / Instructions</label>
+                <textarea class="form-control shadow-sm" formControlName="instructions" rows="2" placeholder="Enter treatment or instructions"></textarea>
+              </div>
+
+              <!-- Upload Prescription -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Upload Prescription</label>
+                <input type="file" class="form-control shadow-sm" (change)="onFileSelect($event)">
+                <small class="text-muted">Accepted file types: PDF, JPG, PNG, DOCX, etc.</small>
+              </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-0">
+              <button class="btn btn-outline-secondary rounded-pill px-4" type="button" (click)="closeCompleteModal()">
+                Cancel
+              </button>
+
+              <button class="btn btn-success rounded-pill px-4" type="submit" [disabled]="loading || completeForm.invalid">
+                <span *ngIf="!loading">Submit & Complete</span>
+                <span *ngIf="loading" class="d-flex align-items-center">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Processing...
+                </span>
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Backdrop -->
+    <div class="modal-backdrop fade show" *ngIf="formOPened"></div>
+
+
+    <!-- Toast Notifications -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+      <!-- Success Toast -->
+      <div *ngIf="successMessage" class="toast show align-items-center text-white bg-success border-0 mb-2" role="alert">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="successMessage=''"></button>
+        </div>
+      </div>
+
+      <!-- Error Toast -->
+      <div *ngIf="errorMessage" class="toast show align-items-center text-white bg-danger border-0 mb-2" role="alert">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="errorMessage=''"></button>
+        </div>
+      </div>
+      </div>
+
 
       <!-- Profile Tab -->
       <div *ngIf="activeTab === 'profile'">

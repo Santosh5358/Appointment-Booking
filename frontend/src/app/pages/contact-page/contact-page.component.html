@@ -12,18 +12,6 @@
           <div class="card-body p-4">
             <h4 class="card-title mb-4 text-primary">Send us a Message</h4>
 
-            <!-- Success Message -->
-            <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
-              {{ successMessage }}
-              <button type="button" class="btn-close" (click)="successMessage = ''"></button>
-            </div>
-
-            <!-- Error Message -->
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
-              {{ errorMessage }}
-              <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
-            </div>
-
             <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
               <!-- Name -->
               <div class="mb-3">
@@ -158,3 +146,27 @@
     </div>
   </div>
 </div>
+
+
+<!-- Toast Notifications -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+  <!-- Success Toast -->
+  <div *ngIf="successMessage" class="toast show align-items-center text-white bg-success border-0 mb-2" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="successMessage=''"></button>
+    </div>
+  </div>
+
+  <!-- Error Toast -->
+  <div *ngIf="errorMessage" class="toast show align-items-center text-white bg-danger border-0 mb-2" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="errorMessage=''"></button>
+    </div>
+  </div>
+  </div>

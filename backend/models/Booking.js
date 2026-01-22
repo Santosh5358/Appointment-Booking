@@ -37,6 +37,22 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  // ✅ UPDATED medicalDetails
+  medicalDetails: {
+    problem: { type: String },
+    diagnosis: { type: String },
+    instructions: { type: String },
+
+    // store file INSIDE DB
+    prescription: {
+      data: Buffer,
+      contentType: String,
+      filename: String,
+      size: Number
+    }
+  },
+
   notes: {
     type: String,
     default: '',

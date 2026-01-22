@@ -1,12 +1,16 @@
+.hover-primary:hover {
+      color: #0d6efd !important;
+      text-decoration: underline;
+    }
+
+    .footer-icons a {
+  color: #2966c1 !important; /* Bootstrap's primary blue */
+    }
+  .footer-icons a:hover {
+    color: #0d6efd !important;
+
+}
+
 footer {
-  margin-top: auto;
-}
-
-a {
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #007bff !important;
+  background-color: #0a0a0a;
 }

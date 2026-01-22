@@ -87,6 +87,8 @@ export class BookingPageComponent implements OnInit {
       });
     },
     error: (err) => {
+      this.errorMessage = 'Failed to load services';
+      setTimeout(() => this.errorMessage = '', 5000);
       console.error('Failed to load services', err);
     }
   });
@@ -100,11 +102,11 @@ export class BookingPageComponent implements OnInit {
     }
 
   buildDoctorServicesMap(): void {
-  this.doctorServicesMap = {};
-  this.doctors.forEach(doc => {
-    this.doctorServicesMap[doc._id] = this.services.filter(s => s.doctor === doc._id);
-  });
-}
+    this.doctorServicesMap = {};
+    this.doctors.forEach(doc => {
+      this.doctorServicesMap[doc._id] = this.services.filter(s => s.doctor === doc._id);
+    });
+  }
   
   loadDoctors(): void {
   this.doctorsLoading = true;
@@ -124,23 +126,24 @@ export class BookingPageComponent implements OnInit {
       console.error('Error loading doctors:', error);
       this.errorMessage = 'Failed to load doctors';
       this.doctorsLoading = false;
+      setTimeout(() => this.successMessage = '', 3000);
     }
   });
 }
     onDoctorChange(): void {
         this.bookingForm?.get('appointmentDate')?.setValue(null);
-  const doctorId = this.bookingForm?.get('doctor')?.value;
-  if (doctorId) {
-    this.servicesForSelectedDoctor = this.doctorServicesMap[doctorId] || [];
-    // Reset selected service if it's not valid
-    const currentService = this.bookingForm.get('service')?.value;
-    if (!this.servicesForSelectedDoctor.find(s => s._id === currentService)) {
-      this.bookingForm.patchValue({ service: '' });
-    }
-  } else {
-    this.servicesForSelectedDoctor = [];
-    this.bookingForm.patchValue({ service: '' });
-  }
+        const doctorId = this.bookingForm?.get('doctor')?.value;
+        if (doctorId) {
+          this.servicesForSelectedDoctor = this.doctorServicesMap[doctorId] || [];
+          // Reset selected service if it's not valid
+          const currentService = this.bookingForm.get('service')?.value;
+          if (!this.servicesForSelectedDoctor.find(s => s._id === currentService)) {
+            this.bookingForm.patchValue({ service: '' });
+          }
+        } else {
+          this.servicesForSelectedDoctor = [];
+          this.bookingForm.patchValue({ service: '' });
+        }
 }
 
   onServiceChange(): void {
@@ -166,7 +169,8 @@ export class BookingPageComponent implements OnInit {
           }));
         },
         error: (error) => {
-          console.error('Error loading available slots:', error);
+          this.errorMessage = 'Failed to load available slots';
+          setTimeout(() => this.errorMessage = '', 5000);
           this.availableSlots = [];
         }
       });
@@ -210,13 +214,12 @@ export class BookingPageComponent implements OnInit {
         this.successMessage = 'Appointment booked successfully! We will confirm your booking soon.';
         this.bookingForm.reset();
         this.submitted = false;
-        setTimeout(() => {
-          this.successMessage = '';
-        }, 5000);
+        setTimeout(() => this.successMessage = '', 3000);
       },
       error: (error) => {
         console.error('Error booking appointment:', error);
         this.errorMessage = error.error?.message || 'Failed to book appointment. Please try again.';
+        setTimeout(() => this.errorMessage = '', 5000);
       },
       complete: () => {
         this.loading = false;

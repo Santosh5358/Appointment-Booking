@@ -43,11 +43,19 @@ export class ContactPageComponent implements OnInit {
 
   loadDoctorProfile(): void {
     this.doctorService.getDoctorProfile().subscribe({
-      next: (data) => {
-        this.doctorProfile = data;
-      },
+    next: (data: any) => {
+      console.log('Doctor profiles loaded:', data);
+
+      // ✅ If API returns array → take first item
+      if (Array.isArray(data) && data.length > 0) {
+        this.doctorProfile = data[0];
+      } else {
+        this.doctorProfile = data; // fallback if API returns single object
+      }
+    },
       error: (error) => {
-        console.error('Error loading doctor profile:', error);
+        this.errorMessage = 'Error loading doctor profile';
+        setTimeout(() => { this.errorMessage = ''; }, 3000);
       }
     });
   }
@@ -74,8 +82,8 @@ export class ContactPageComponent implements OnInit {
         }, 5000);
       },
       error: (error) => {
-        console.error('Error sending message:', error);
         this.errorMessage = 'Failed to send message. Please try again later.';
+        setTimeout(() => { this.errorMessage = ''; }, 5000);
       },
       complete: () => {
         this.loading = false;

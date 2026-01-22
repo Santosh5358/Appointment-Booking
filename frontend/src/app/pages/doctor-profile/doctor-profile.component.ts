@@ -14,7 +14,7 @@ import { DoctorProfile } from '../../models/index';
 export class DoctorProfileComponent implements OnInit {
   doctorProfile: DoctorProfile | null = null;
   loading = true;
-  doctorProfile2: DoctorProfile | null = null;
+  doctorProfile2: any | null = null;
   operatingHours: any;
 
   constructor(private doctorService: DoctorService) { }
@@ -53,8 +53,8 @@ export class DoctorProfileComponent implements OnInit {
 
   loadDoctorProfile(): void {
     this.loading = true;
-    const doctorID= localStorage.getItem('doctorID') || '';
-    this.doctorService.getDoctorProfileById(doctorID).subscribe({
+    // const doctorID= localStorage.getItem('doctorID') || '';
+    this.doctorService.getAllDoctors().subscribe({
       next: (data) => {
         this.doctorProfile2 = data;
         this.loading = false;

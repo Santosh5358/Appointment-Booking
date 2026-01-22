@@ -17,6 +17,8 @@ export class HomePageComponent implements OnInit {
   services: Service[] = [];
   doctorProfile: DoctorProfile | null = null;
   loading = true;
+  errorMessage = '';
+  successMessage = '';
 
   constructor(
     private serviceService: ServiceService,
@@ -35,6 +37,8 @@ export class HomePageComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading services:', error);
+        this.errorMessage = 'Failed to load Data. Please try again later.';
+        setTimeout(() => this.errorMessage = '', 3000);
       },
       complete: () => {
         this.loading = false;
@@ -56,6 +60,7 @@ export class HomePageComponent implements OnInit {
     },
     error: (error) => {
       console.error('Error loading doctor profile:', error);
+
     }
   });
 }
