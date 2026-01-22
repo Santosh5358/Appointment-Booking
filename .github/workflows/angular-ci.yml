@@ -1,4 +1,4 @@
-name: Angular CI
+name: build-automated
 
 on:
   push:
