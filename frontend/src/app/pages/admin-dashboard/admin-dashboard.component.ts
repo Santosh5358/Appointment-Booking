@@ -208,7 +208,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   updateBookingStatus(bookingId: string, newStatus: string): void {
-    this.bookingService.updateBookingStatus(bookingId, newStatus).subscribe({
+    this.bookingService.updateBookingStatus2(bookingId, newStatus).subscribe({
       next: () => {
         this.successMessage = 'Booking status updated successfully';
         this.loadBookings();
@@ -217,6 +217,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (error) => {
         console.error('Error:', error);
         this.errorMessage = 'Failed to update booking';
+        setTimeout(() => this.errorMessage = '', 3000);
       }
     });
   }
@@ -232,6 +233,7 @@ export class AdminDashboardComponent implements OnInit {
         error: (error) => {
           console.error('Error:', error);
           this.errorMessage = 'Failed to delete booking';
+          setTimeout(() => this.errorMessage = '', 3000);
         }
       });
     }
@@ -280,6 +282,7 @@ export class AdminDashboardComponent implements OnInit {
         console.error('Error:', error);
         this.doctorErrorMessage = 'Failed to update profile';
         this.doctorLoading = false;
+        setTimeout(() => this.doctorErrorMessage = '', 3000);
       }
     });
   }
@@ -324,6 +327,7 @@ export class AdminDashboardComponent implements OnInit {
           console.error('Error:', error);
           this.serviceErrorMessage = 'Failed to update service';
           this.serviceLoading = false;
+          setTimeout(() => this.serviceErrorMessage = '', 3000);
         }
       });
     } else {
@@ -342,6 +346,7 @@ export class AdminDashboardComponent implements OnInit {
           console.error('Error:', error);
           this.serviceErrorMessage = 'Failed to create service';
           this.serviceLoading = false;
+          setTimeout(() => this.serviceErrorMessage = '', 3000);
         }
       });
     }
@@ -375,6 +380,7 @@ export class AdminDashboardComponent implements OnInit {
         error: (error) => {
           console.error('Error:', error);
           this.errorMessage = 'Failed to delete service';
+          setTimeout(() => this.errorMessage = '', 3000);
         }
       });
     }
@@ -393,6 +399,7 @@ export class AdminDashboardComponent implements OnInit {
         console.error('Error loading doctors:', error);
         this.doctorsErrorMessage = 'Failed to load doctors';
         this.doctorsLoading = false;
+        setTimeout(() => this.doctorsErrorMessage = '', 3000);
       }
     });
   }

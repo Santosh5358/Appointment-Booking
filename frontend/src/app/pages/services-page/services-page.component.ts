@@ -17,6 +17,8 @@ export class ServicesPageComponent implements OnInit {
   filteredServices: Service[] = [];
   selectedCategory = '';
   loading = true;
+  errorMessage = '';
+  successMessage = '';
   categories = ['Physiotherapy', 'Acupuncture', 'Acupressure'];
 
   constructor(private serviceService: ServiceService) { }
@@ -33,6 +35,8 @@ export class ServicesPageComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading services:', error);
+        this.errorMessage = 'Failed to load services. Please try again later.';
+        setTimeout(() => this.errorMessage = '', 3000);
       },
       complete: () => {
         this.loading = false;

@@ -27,9 +27,18 @@ export class BookingService {
     return this.http.get<Booking[]>(`${this.apiUrl}/by-email/${email}`);
   }
 
-  updateBookingStatus(id: string, status: string): Observable<Booking> {
-    return this.http.put<Booking>(`${this.apiUrl}/${id}/status`, { status });
+  updateBookingStatus(id: string, data: FormData) {
+  return this.http.post(
+    `${this.apiUrl}/${id}/complete`,
+    data
+  );
+}
+
+  updateBookingStatus2(id: string, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/status`, { status });
   }
+
+
 
   deleteBooking(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);

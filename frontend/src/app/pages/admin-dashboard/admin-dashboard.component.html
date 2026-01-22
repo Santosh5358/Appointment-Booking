@@ -76,18 +76,29 @@
       </div>
     </div>
 
-    <div class="container py-5">
-      <!-- Success Message -->
-      <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
-        <i class="bi bi-check-circle"></i> {{ successMessage }}
-        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  <!-- Toast Notifications -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+  <!-- Success Toast -->
+  <div *ngIf="successMessage" class="toast show align-items-center text-white bg-success border-0 mb-2" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
       </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="successMessage=''"></button>
+    </div>
+  </div>
 
-      <!-- Error Message -->
-      <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
-        <i class="bi bi-exclamation-circle"></i> {{ errorMessage }}
-        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  <!-- Error Toast -->
+  <div *ngIf="errorMessage" class="toast show align-items-center text-white bg-danger border-0 mb-2" role="alert">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
       </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="errorMessage=''"></button>
+    </div>
+  </div>
+  </div>
+
 
       <!-- Tab Navigation -->
       <div class="admin-tabs mb-5">
@@ -875,5 +886,4 @@
         </div>
       </div>
     </div>
-  </div>
 </div>

@@ -1,4 +1,6 @@
 require('dotenv').config();
+const multer = require('multer');
+const path = require('path');
 const twilio = require('twilio');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
@@ -9,7 +11,6 @@ const DoctorProfile = require('../models/DoctorProfile');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;   // Twilio Account SID
 const authToken = process.env.TWILIO_AUTH_TOKEN;     // Twilio Auth Token
 const client = twilio(accountSid, authToken);
-
 
 /**
  * Send WhatsApp message
@@ -290,3 +291,129 @@ exports.getAvailableSlots = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.completeBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { problem, diagnosis, instructions } = req.body;
+
+    const booking = await Booking.findById(id).populate(['service', 'doctor']);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    booking.status = 'completed';
+    booking.updatedAt = Date.now();
+
+    booking.medicalDetails = {
+      problem,
+      diagnosis,
+      instructions
+    };
+
+    // ✅ SAVE FILE INSIDE DB (ANY FILE TYPE)
+    if (req.file) {
+      booking.medicalDetails.prescription = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        filename: req.file.originalname,
+        size: req.file.size
+      };
+    }
+
+    await booking.save();
+
+    // 🔥 SEND EMAIL + WHATSAPP
+    await sendAppointmentNotifications(booking);
+
+    res.json({
+      message: 'Appointment completed and email sent successfully',
+      booking
+    });
+
+  } catch (error) {
+    console.error('Complete booking error:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
+
+function getMailOptionsByStatus(booking) {
+  const {
+    patientName,
+    patientEmail,
+    appointmentDate,
+    appointmentTime,
+    service,
+    doctor,
+    status,
+    medicalDetails
+  } = booking;
+
+  // ================= COMPLETED EMAIL =================
+  if (status === 'completed') {
+    return {
+      from: process.env.SMTP_USER,
+      to: patientEmail,
+      subject: `Medical Report & Prescription - Dr. ${doctor.name}`,
+      text: `
+Hello ${patientName},
+
+Your appointment with Dr. ${doctor.name} has been completed successfully.
+
+Appointment Details:
+Service: ${service.name}
+Date: ${appointmentDate.toDateString()}
+Time: ${appointmentTime}
+
+Medical Summary:
+--------------------------------
+Problem:
+${medicalDetails?.problem || 'N/A'}
+
+Diagnosis:
+${medicalDetails?.diagnosis || 'N/A'}
+
+Treatment / Instructions:
+${medicalDetails?.instructions || 'N/A'}
+--------------------------------
+
+Please find your prescription attached with this email.
+
+If you have any follow-up questions, feel free to contact us.
+
+Wishing you a speedy recovery 🙏
+
+Regards,
+${doctor.name}
+${doctor.address}
+      `,
+      attachments: medicalDetails?.prescription?.data
+  ? [{
+      filename: medicalDetails.prescription.filename,
+      content: medicalDetails.prescription.data,
+      contentType: medicalDetails.prescription.contentType
+    }]
+  : []
+
+    };
+  }
+
+  // ================= PENDING / CONFIRMED (existing logic) =================
+  if (status !== 'confirmed') {
+    return {
+      from: process.env.SMTP_USER,
+      to: patientEmail,
+      subject: `Appointment Booked with Dr. ${doctor.name}`,
+      text: `Hello ${patientName}, ...`,
+    };
+  }
+
+  return {
+    from: process.env.SMTP_USER,
+    to: patientEmail,
+    subject: `Your Appointment with Dr. ${doctor.name} is Confirmed`,
+    text: `Hello ${patientName}, ...`,
+  };
+}
